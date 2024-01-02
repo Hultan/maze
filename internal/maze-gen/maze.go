@@ -26,6 +26,10 @@ type Cell struct {
 	Walls   uint8
 }
 
+type Location struct {
+	x, y int
+}
+
 var rnd *rand.Rand
 
 func NewMaze() *Maze {
@@ -78,13 +82,13 @@ func generate(m *Maze, s *Stack) {
 		}
 
 		m[nLoc.y][nLoc.x].visited = true
-
 		s.Push(nLoc)
 	}
 }
 
 func getNeighbors(m *Maze, loc Location) []Location {
 	var n []Location
+
 	if loc.x > 0 && !m[loc.y][loc.x-1].visited {
 		n = append(n, Location{x: loc.x - 1, y: loc.y})
 	}

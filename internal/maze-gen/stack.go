@@ -4,9 +4,6 @@ import (
 	"sync"
 )
 
-type Location struct {
-	x, y int
-}
 type Stack struct {
 	lock sync.Mutex // you don't have to do this if you don't want thread safety
 	s    []Location
