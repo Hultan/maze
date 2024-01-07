@@ -2,7 +2,7 @@
   <configuration default="false" name="maze" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="maze" />
     <working_directory value="$PROJECT_DIR$" />
-    <kind value="FILE" />
+    <kind value="DIRECTORY" />
     <package value="maze" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/main.go" />
