@@ -1,4 +1,4 @@
-package maze_gen
+package mazeGen
 
 import (
 	"sync"

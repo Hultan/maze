@@ -5,7 +5,7 @@
     <kind value="FILE" />
     <package value="maze" />
     <directory value="$PROJECT_DIR$" />
-    <filePath value="$PROJECT_DIR$/cmd/maze/main.go" />
+    <filePath value="$PROJECT_DIR$/main.go" />
     <output_directory value="$PROJECT_DIR$/build" />
     <method v="2" />
   </configuration>

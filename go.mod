@@ -1,8 +1,10 @@
 module github.com/hultan/maze
 
-go 1.17
+go 1.21
+
+require github.com/gen2brain/raylib-go/raylib v0.0.0-20231230150416-17ce08145200
 
 require (
-	github.com/gotk3/gotk3 v0.6.1
-	github.com/hultan/softteam v1.2.7
+	github.com/ebitengine/purego v0.6.0-alpha.2 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 )
