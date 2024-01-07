@@ -1,6 +1,9 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+	"github.com/hultan/maze/mazeGen"
+)
 
 var pos = rl.NewVector3(0, 1, -1)
 var up = rl.NewVector3(0, 1, 0)
@@ -32,14 +35,37 @@ func draw3D() {
 
 	rl.BeginMode3D(camera)
 
-	//rl.DrawCube(camera.Target, 0.5, 0.5, 0.5, rl.Purple)
-	//rl.DrawCubeWires(camera.Target, 0.5, 0.5, 0.5, rl.DarkPurple)
+	rl.DrawCube(rl.NewVector3(0.0, -0.5, 0.0), 100.0, 1.0, 100.0, rl.Beige) // Draw ground
+	rl.DrawCube(rl.NewVector3(0.0, 5.5, 0.0), 100.0, 1.0, 100.0, rl.Brown)  // Draw ground
 
-	rl.DrawPlane(rl.NewVector3(0.0, 0.0, 0.0), rl.NewVector2(32.0, 32.0), rl.Beige) // Draw ground
-	rl.DrawCube(rl.NewVector3(-16.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Blue)            // Draw a blue wall
-	rl.DrawCube(rl.NewVector3(16.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Lime)             // Draw a green wall
-	rl.DrawCube(rl.NewVector3(0.0, 2.5, 16.0), 32.0, 5.0, 1.0, rl.Gold)             // Draw a yellow wall
+	for x := 0; x < 25; x++ {
+		for y := 0; y < 25; y++ {
+			w := maze[y][x].Walls
+			if x == 0 || y == 0 {
+				if w&mazeGen.North != 0 {
+					rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y)), 4.0, 5.0, 1.0, rl.Blue)
+					//rl.DrawLine((x+1)*size, (y+1)*size, (x+2)*size, (y+1)*size, rl.RayWhite)
+				}
+				if w&mazeGen.West != 0 {
+					rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y+1)), 1.0, 5.0, 4.0, rl.Blue)
+					//rl.DrawLine((x+1)*size, (y+1)*size, (x+1)*size, (y+2)*size, rl.RayWhite)
+				}
+			}
+			if w&mazeGen.South != 0 {
+				rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y+1)), 4.0, 5.0, 1.0, rl.Blue)
+				//rl.DrawLine((x+1)*size, (y+2)*size, (x+2)*size, (y+2)*size, rl.RayWhite)
+			}
+			if w&mazeGen.East != 0 {
+				rl.DrawCube(rl.NewVector3(coord(x+1), 2.5, coord(y)), 1.0, 5.0, 4.0, rl.Blue)
+				//rl.DrawLine((x+2)*size, (y+1)*size, (x+2)*size, (y+2)*size, rl.RayWhite)
+			}
+		}
+	}
 
 	rl.EndMode3D()
 	rl.EndDrawing()
+}
+
+func coord(v int) float32 {
+	return float32(v)*4 - 50.5
 }
