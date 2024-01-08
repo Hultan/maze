@@ -1,9 +1,14 @@
 package main
 
 import (
+	"image/color"
+	"math"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/hultan/maze/mazeGen"
 )
+
+const compassSize, compassX, compassY = 70, 700, 100
 
 var up = rl.NewVector3(0, 1, 0)
 var target = rl.NewVector3(0, 1, 0)
@@ -39,8 +44,10 @@ func draw3D() {
 	rl.DrawCube(rl.NewVector3(0.0, -thick, 0.0), 4*size+1, thick, 4*size+1, rl.Beige) // Draw ground
 	rl.DrawCube(rl.NewVector3(0.0, height, 0.0), 4*size+1, thick, 4*size+1, rl.Brown) // Draw roof
 
-	rl.DrawCube(rl.NewVector3(-size*2+2, height/2, -size*2+2), thick, thick, thick, rl.Green) // Draw start cube
-	rl.DrawCube(rl.NewVector3(size*2-2, height/2, size*2-2), thick, thick, thick, rl.Blue)    // Draw end cube
+	start := rl.NewVector3(-size*2+2, height/2, -size*2+2)
+	end := rl.NewVector3(size*2-2, height/2, size*2-2)
+	rl.DrawCube(start, thick, thick, thick, rl.Green) // Draw start cube
+	rl.DrawCube(end, thick, thick, thick, rl.Blue)    // Draw end cube
 
 	for x := 0; x < size; x++ {
 		for y := 0; y < size; y++ {
@@ -64,12 +71,30 @@ func draw3D() {
 
 	rl.EndMode3D()
 
+	// Compass
+	rl.DrawCircleLines(compassX, compassY, compassSize, rl.Red)
+	DrawNeedle(camera.Target, camera.Position, rl.Black)
+	DrawNeedle(end, camera.Position, rl.Blue)
+
+	// Map
 	xx = int((camera.Position.X + size*2) / 4)
 	yy = int((camera.Position.Z + size*2) / 4)
 
 	if rl.IsKeyDown(rl.KeyM) {
 		draw2D(false)
 	}
+}
+
+func DrawNeedle(start, end rl.Vector3, col color.RGBA) {
+	cx := start.X - end.X
+	cy := start.Z - end.Z
+	cx, cy = normalize(cx, cy, compassSize)
+	rl.DrawLine(compassX, compassY, int32(compassX+cx), int32(compassY+cy), col)
+}
+
+func normalize(cx, cy, size float32) (float32, float32) {
+	l := float32(math.Sqrt(float64(cx*cx + cy*cy)))
+	return cx / l * size, cy / l * size
 }
 
 func coord(v int) float32 {

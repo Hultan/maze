@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/hultan/maze/mazeGen"
 )
@@ -37,7 +35,7 @@ func main() {
 		if rl.IsKeyDown(rl.KeyThree) {
 			dim = World3D
 		}
-		fmt.Println(xx, yy)
+
 		if xx == 24 && yy == 24 {
 			maze = mazeGen.NewMaze()
 			xx = 0
