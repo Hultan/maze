@@ -7,12 +7,7 @@ import (
 
 var xx, yy = 0, 0
 
-func draw2D() {
-	if xx == 24 && yy == 24 {
-		maze = mazeGen.NewMaze()
-		xx = 0
-		yy = 0
-	}
+func draw2D(clear bool) {
 	wall := maze[yy][xx].Walls
 	if rl.IsKeyPressed(rl.KeyUp) {
 		if wall&mazeGen.North == 0 {
@@ -35,9 +30,9 @@ func draw2D() {
 		}
 	}
 
-	rl.BeginDrawing()
-
-	rl.ClearBackground(rl.DarkGray)
+	if clear {
+		rl.ClearBackground(rl.DarkGray)
+	}
 
 	size := int32(600 / 30)
 
@@ -67,6 +62,4 @@ func draw2D() {
 
 	// TODO : Draw yellow player position
 	rl.DrawRectangle(size*(int32(xx)+1)+3, size*(int32(yy)+1)+3, size-6, size-6, rl.Yellow)
-
-	rl.EndDrawing()
 }

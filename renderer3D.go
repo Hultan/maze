@@ -5,7 +5,6 @@ import (
 	"github.com/hultan/maze/mazeGen"
 )
 
-var pos = rl.NewVector3(-25*2+2, 1, -25*2+2)
 var up = rl.NewVector3(0, 1, 0)
 var target = rl.NewVector3(0, 1, 0)
 var camera rl.Camera3D
@@ -28,8 +27,6 @@ func draw3D() {
 	}
 	rot := rl.NewVector3(rl.GetMouseDelta().X*0.05, rl.GetMouseDelta().Y*0.05, 0)
 	rl.UpdateCameraPro(&camera, mov, rot, rl.GetMouseWheelMove()*2)
-
-	rl.BeginDrawing()
 
 	rl.ClearBackground(rl.White)
 
@@ -67,9 +64,12 @@ func draw3D() {
 
 	rl.EndMode3D()
 
-	// Compass
+	xx = int((camera.Position.X + size*2) / 4)
+	yy = int((camera.Position.Z + size*2) / 4)
 
-	rl.EndDrawing()
+	if rl.IsKeyDown(rl.KeyM) {
+		draw2D(false)
+	}
 }
 
 func coord(v int) float32 {
