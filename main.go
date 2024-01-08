@@ -25,7 +25,7 @@ func main() {
 	maze = mazeGen.NewMaze()
 	rl.DisableCursor() // Limit cursor to relative movement inside the window
 
-	camera = rl.NewCamera3D(pos, target, up, 90, rl.CameraPerspective)
+	camera = rl.NewCamera3D(pos, target, up, 60, rl.CameraPerspective)
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyTwo) {
@@ -39,6 +39,7 @@ func main() {
 			draw2D()
 		case World3D:
 			draw3D()
+			//draw2D()
 		}
 	}
 }

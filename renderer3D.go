@@ -5,7 +5,7 @@ import (
 	"github.com/hultan/maze/mazeGen"
 )
 
-var pos = rl.NewVector3(0, 1, -1)
+var pos = rl.NewVector3(-25*2+2, 1, -25*2+2)
 var up = rl.NewVector3(0, 1, 0)
 var target = rl.NewVector3(0, 1, 0)
 var camera rl.Camera3D
@@ -35,37 +35,43 @@ func draw3D() {
 
 	rl.BeginMode3D(camera)
 
-	rl.DrawCube(rl.NewVector3(0.0, -0.5, 0.0), 100.0, 1.0, 100.0, rl.Beige) // Draw ground
-	rl.DrawCube(rl.NewVector3(0.0, 5.5, 0.0), 100.0, 1.0, 100.0, rl.Brown)  // Draw ground
+	const size = 25
+	const width, thick, height = 5, 1, 3
+	var wallColor = rl.DarkBrown
 
-	for x := 0; x < 25; x++ {
-		for y := 0; y < 25; y++ {
+	rl.DrawCube(rl.NewVector3(0.0, -thick, 0.0), 4*size+1, thick, 4*size+1, rl.Beige) // Draw ground
+	rl.DrawCube(rl.NewVector3(0.0, height, 0.0), 4*size+1, thick, 4*size+1, rl.Brown) // Draw roof
+
+	rl.DrawCube(rl.NewVector3(-size*2+2, height/2, -size*2+2), thick, thick, thick, rl.Green) // Draw start cube
+	rl.DrawCube(rl.NewVector3(size*2-2, height/2, size*2-2), thick, thick, thick, rl.Blue)    // Draw end cube
+
+	for x := 0; x < size; x++ {
+		for y := 0; y < size; y++ {
 			w := maze[y][x].Walls
 			if x == 0 || y == 0 {
 				if w&mazeGen.North != 0 {
-					rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y)), 4.0, 5.0, 1.0, rl.Blue)
-					//rl.DrawLine((x+1)*size, (y+1)*size, (x+2)*size, (y+1)*size, rl.RayWhite)
+					rl.DrawCube(rl.NewVector3(coord(x)+width/2, height/2, coord(y)), width, height, thick, wallColor)
 				}
 				if w&mazeGen.West != 0 {
-					rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y+1)), 1.0, 5.0, 4.0, rl.Blue)
-					//rl.DrawLine((x+1)*size, (y+1)*size, (x+1)*size, (y+2)*size, rl.RayWhite)
+					rl.DrawCube(rl.NewVector3(coord(x), height/2, coord(y)+width/2), thick, height, width, wallColor)
 				}
 			}
 			if w&mazeGen.South != 0 {
-				rl.DrawCube(rl.NewVector3(coord(x), 2.5, coord(y+1)), 4.0, 5.0, 1.0, rl.Blue)
-				//rl.DrawLine((x+1)*size, (y+2)*size, (x+2)*size, (y+2)*size, rl.RayWhite)
+				rl.DrawCube(rl.NewVector3(coord(x)+width/2, height/2, coord(y+1)), width, height, thick, wallColor)
 			}
 			if w&mazeGen.East != 0 {
-				rl.DrawCube(rl.NewVector3(coord(x+1), 2.5, coord(y)), 1.0, 5.0, 4.0, rl.Blue)
-				//rl.DrawLine((x+2)*size, (y+1)*size, (x+2)*size, (y+2)*size, rl.RayWhite)
+				rl.DrawCube(rl.NewVector3(coord(x+1), height/2, coord(y)+width/2), thick, height, width, wallColor)
 			}
 		}
 	}
 
 	rl.EndMode3D()
+
+	// Compass
+
 	rl.EndDrawing()
 }
 
 func coord(v int) float32 {
-	return float32(v)*4 - 50.5
+	return float32(v)*4 - 50
 }
