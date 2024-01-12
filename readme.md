@@ -1,6 +1,6 @@
 ## MAZE
 
-Generate a 2D maze (using a stack, instead of recursion)
+A 3D maze
 
 # LINKS
 

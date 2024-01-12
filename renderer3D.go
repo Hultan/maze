@@ -13,8 +13,12 @@ const compassSize, compassX, compassY = 70, 700, 100
 var up = rl.NewVector3(0, 1, 0)
 var target = rl.NewVector3(0, 1, 0)
 var camera rl.Camera3D
+var walls []rl.Rectangle
+var oldCameraPosition rl.Vector3
 
 func draw3D() {
+	walls = []rl.Rectangle{}
+	oldCameraPosition = camera.Position
 	rl.UpdateCamera(&camera, rl.CameraFirstPerson)
 
 	mov := rl.NewVector3(0, 0, 0)
@@ -54,17 +58,17 @@ func draw3D() {
 			w := maze[y][x].Walls
 			if x == 0 || y == 0 {
 				if w&mazeGen.North != 0 {
-					rl.DrawCube(rl.NewVector3(coord(x)+width/2, height/2, coord(y)), width, height, thick, wallColor)
+					drawWall(coord(x)+width/2, height/2, coord(y), width, height, thick, wallColor)
 				}
 				if w&mazeGen.West != 0 {
-					rl.DrawCube(rl.NewVector3(coord(x), height/2, coord(y)+width/2), thick, height, width, wallColor)
+					drawWall(coord(x), height/2, coord(y)+width/2, thick, height, width, wallColor)
 				}
 			}
 			if w&mazeGen.South != 0 {
-				rl.DrawCube(rl.NewVector3(coord(x)+width/2, height/2, coord(y+1)), width, height, thick, wallColor)
+				drawWall(coord(x)+width/2, height/2, coord(y+1), width, height, thick, wallColor)
 			}
 			if w&mazeGen.East != 0 {
-				rl.DrawCube(rl.NewVector3(coord(x+1), height/2, coord(y)+width/2), thick, height, width, wallColor)
+				drawWall(coord(x+1), height/2, coord(y)+width/2, thick, height, width, wallColor)
 			}
 		}
 	}
@@ -73,8 +77,8 @@ func draw3D() {
 
 	// Compass
 	rl.DrawCircleLines(compassX, compassY, compassSize, rl.Red)
-	DrawNeedle(camera.Target, camera.Position, rl.Black)
-	DrawNeedle(end, camera.Position, rl.Blue)
+	drawNeedle(camera.Target, camera.Position, rl.Black)
+	drawNeedle(end, camera.Position, rl.Blue)
 
 	// Map
 	xx = int((camera.Position.X + size*2) / 4)
@@ -83,9 +87,25 @@ func draw3D() {
 	if rl.IsKeyDown(rl.KeyM) {
 		draw2D(false)
 	}
+
+	// Collision
+	if isHittingWall() {
+		camera.Position = oldCameraPosition
+	}
 }
 
-func DrawNeedle(start, end rl.Vector3, col color.RGBA) {
+func isHittingWall() bool {
+	playerPos := rl.Vector2{X: camera.Position.X, Y: camera.Position.Z}
+	for _, w := range walls {
+		if rl.CheckCollisionCircleRec(playerPos, 0.1, w) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func drawNeedle(start, end rl.Vector3, col color.RGBA) {
 	cx := start.X - end.X
 	cy := start.Z - end.Z
 	cx, cy = normalize(cx, cy, compassSize)
@@ -99,4 +119,9 @@ func normalize(cx, cy, size float32) (float32, float32) {
 
 func coord(v int) float32 {
 	return float32(v)*4 - 50
+}
+
+func drawWall(x, y, z, w, h, t float32, col color.RGBA) {
+	walls = append(walls, rl.Rectangle{X: x, Y: z, Width: w, Height: t})
+	rl.DrawCube(rl.NewVector3(x, y, z), w, h, t, col)
 }
