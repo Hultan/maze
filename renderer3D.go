@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 
@@ -45,11 +46,11 @@ func draw3D() {
 	const width, thick, height = 5, 1, 3
 	var wallColor = rl.DarkBrown
 
-	rl.DrawCube(rl.NewVector3(0.0, -thick, 0.0), 4*size+1, thick, 4*size+1, rl.Beige) // Draw ground
-	rl.DrawCube(rl.NewVector3(0.0, height, 0.0), 4*size+1, thick, 4*size+1, rl.Brown) // Draw roof
+	rl.DrawCube(rl.NewVector3(50.0, -thick, 50.0), 4*size+1, thick, 4*size+1, rl.Beige) // Draw ground
+	rl.DrawCube(rl.NewVector3(50.0, height, 50.0), 4*size+1, thick, 4*size+1, rl.Brown) // Draw roof
 
-	start := rl.NewVector3(-size*2+2, height/2, -size*2+2)
-	end := rl.NewVector3(size*2-2, height/2, size*2-2)
+	start := rl.NewVector3(-size*2+2+50, height/2, -size*2+2+50)
+	end := rl.NewVector3(size*2-2+50, height/2, size*2-2+50)
 	rl.DrawCube(start, thick, thick, thick, rl.Green) // Draw start cube
 	rl.DrawCube(end, thick, thick, thick, rl.Blue)    // Draw end cube
 
@@ -88,9 +89,12 @@ func draw3D() {
 		draw2D(false)
 	}
 
+	s := fmt.Sprintf("%.1f, %.1f", camera.Position.X, camera.Position.Z)
+	rl.DrawText(s, 10, 10, 22, rl.White)
+
 	// Collision
 	if isHittingWall() {
-		camera.Position = oldCameraPosition
+		//camera.Position = oldCameraPosition
 	}
 }
 
@@ -118,7 +122,7 @@ func normalize(cx, cy, size float32) (float32, float32) {
 }
 
 func coord(v int) float32 {
-	return float32(v)*4 - 50
+	return float32(v) * 4
 }
 
 func drawWall(x, y, z, w, h, t float32, col color.RGBA) {

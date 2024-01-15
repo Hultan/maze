@@ -14,7 +14,7 @@ const (
 
 var maze *mazeGen.Maze
 var dim = World3D
-var startingPos = rl.NewVector3(-48, 1, -48)
+var startingPos = rl.NewVector3(2, 1, 2)
 
 func main() {
 	rl.InitWindow(800, 600, "Maze")
