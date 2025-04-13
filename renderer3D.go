@@ -46,11 +46,11 @@ func draw3D() {
 	const width, thick, height = 5, 1, 3
 	var wallColor = rl.DarkBrown
 
-	rl.DrawCube(rl.NewVector3(50.0, -thick, 50.0), 4*size+1, thick, 4*size+1, rl.Beige) // Draw ground
-	rl.DrawCube(rl.NewVector3(50.0, height, 50.0), 4*size+1, thick, 4*size+1, rl.Brown) // Draw roof
+	rl.DrawCube(rl.NewVector3(50.0, -thick, 50.0), 101, thick, 101, rl.Beige)   // Draw ground
+	rl.DrawCube(rl.NewVector3(50.0, height+1, 50.0), 101, thick, 101, rl.Brown) // Draw roof
 
-	start := rl.NewVector3(-size*2+2+50, height/2, -size*2+2+50)
-	end := rl.NewVector3(size*2-2+50, height/2, size*2-2+50)
+	start := rl.NewVector3(2, height/2, 2)
+	end := rl.NewVector3(98, height/2, 98)
 	rl.DrawCube(start, thick, thick, thick, rl.Green) // Draw start cube
 	rl.DrawCube(end, thick, thick, thick, rl.Blue)    // Draw end cube
 
@@ -73,7 +73,6 @@ func draw3D() {
 			}
 		}
 	}
-
 	rl.EndMode3D()
 
 	// Compass
@@ -84,17 +83,17 @@ func draw3D() {
 	// Map
 	xx = int((camera.Position.X + size*2) / 4)
 	yy = int((camera.Position.Z + size*2) / 4)
-
 	if rl.IsKeyDown(rl.KeyM) {
 		draw2D(false)
 	}
 
+	// Draw position
 	s := fmt.Sprintf("%.1f, %.1f", camera.Position.X, camera.Position.Z)
 	rl.DrawText(s, 10, 10, 22, rl.White)
 
 	// Collision
 	if isHittingWall() {
-		//camera.Position = oldCameraPosition
+		camera.Position = oldCameraPosition
 	}
 }
 
@@ -128,4 +127,5 @@ func coord(v int) float32 {
 func drawWall(x, y, z, w, h, t float32, col color.RGBA) {
 	walls = append(walls, rl.Rectangle{X: x, Y: z, Width: w, Height: t})
 	rl.DrawCube(rl.NewVector3(x, y, z), w, h, t, col)
+	rl.DrawCube(rl.NewVector3(x, 3, z), w, 1, t, rl.Red) // Draw roof
 }
