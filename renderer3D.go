@@ -42,7 +42,6 @@ func draw3D() {
 
 	rl.BeginMode3D(camera)
 
-	const size = 25
 	const width, thick, height = 5, 1, 3
 	var wallColor = rl.DarkBrown
 
@@ -54,9 +53,9 @@ func draw3D() {
 	rl.DrawCube(start, thick, thick, thick, rl.Green) // Draw start cube
 	rl.DrawCube(end, thick, thick, thick, rl.Blue)    // Draw end cube
 
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
-			w := maze[y][x].Walls
+	for x := int32(0); x < maze.Width(); x++ {
+		for y := int32(0); y < maze.Height(); y++ {
+			w := maze.Cells[y][x].Walls
 			if x == 0 || y == 0 {
 				if w&mazeGen.North != 0 {
 					drawWall(coord(x)+width/2, height/2, coord(y), width, height, thick, wallColor)
@@ -81,8 +80,8 @@ func draw3D() {
 	drawNeedle(end, camera.Position, rl.Blue)
 
 	// Map
-	xx = int((camera.Position.X + size*2) / 4)
-	yy = int((camera.Position.Z + size*2) / 4)
+	xx = int32((camera.Position.X + float32(maze.Width())*2) / 4)
+	yy = int32((camera.Position.Z + float32(maze.Height())*2) / 4)
 	if rl.IsKeyDown(rl.KeyM) {
 		draw2D(false)
 	}
@@ -120,7 +119,7 @@ func normalize(cx, cy, size float32) (float32, float32) {
 	return cx / l * size, cy / l * size
 }
 
-func coord(v int) float32 {
+func coord(v int32) float32 {
 	return float32(v) * 4
 }
 

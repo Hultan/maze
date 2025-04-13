@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-const size = 25
-
 const (
 	North    = 1
 	East     = 2
@@ -19,7 +17,19 @@ const (
 	all      = 15
 )
 
-type Maze [size][size]Cell
+type Maze struct {
+	Cells         [][]Cell
+	Unvisited     *Stack
+	width, height int32
+
+	// For solving
+	SolutionStack   []Step
+	SolutionVisited map[Location]bool
+	SolutionParent  map[Location]*Location
+	SolutionStarted bool
+	SolutionDone    bool
+	SolutionPath    []Location
+}
 
 type Cell struct {
 	visited bool
@@ -27,80 +37,167 @@ type Cell struct {
 }
 
 type Location struct {
-	x, y int
+	X, Y int32
+}
+
+type Step struct {
+	Loc  Location
+	From *Location
 }
 
 var rnd *rand.Rand
 
-func NewMaze() *Maze {
+func NewMaze(width, height int32) *Maze {
 	m := &Maze{}
-
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
-			m[y][x] = Cell{visited: false, Walls: all}
-		}
+	m.width = width
+	m.height = height
+	m.Cells = make([][]Cell, height)
+	for i := range m.Cells {
+		m.Cells[i] = make([]Cell, width)
 	}
+	m.clear()
 
 	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
-	s := NewStack()
-	s.Push(Location{0, 0})
-	m[0][0].visited = true
-	generate(m, s)
 
+	m.Unvisited = NewStack()
+	m.Unvisited.Push(Location{0, 0})
+	m.Cells[0][0].visited = true
 	return m
 }
 
-// https://en.wikipedia.org/wiki/Maze_generation_algorithm
-func generate(m *Maze, s *Stack) {
-	for s.Length() > 0 {
-		loc := s.Pop()
+func (m *Maze) Width() int32 {
+	return int32(m.width)
+}
 
-		n := getNeighbors(m, loc)
-		if len(n) == 0 {
-			continue
-		}
+func (m *Maze) Height() int32 {
+	return int32(m.height)
+}
 
-		s.Push(loc)
-		nLoc := n[rnd.Intn(len(n))]
+func (m *Maze) IsDone() bool {
+	return m.Unvisited.Length() == 0
+}
 
-		// Remove walls
-		if nLoc.x == loc.x+1 && nLoc.y == loc.y {
-			m[nLoc.y][nLoc.x].Walls &= notWest
-			m[loc.y][loc.x].Walls &= notEast
+func (m *Maze) clear() {
+	for x := int32(0); x < m.width; x++ {
+		for y := int32(0); y < m.height; y++ {
+			m.Cells[y][x] = Cell{visited: false, Walls: all}
 		}
-		if nLoc.x == loc.x && nLoc.y == loc.y+1 {
-			m[nLoc.y][nLoc.x].Walls &= notNorth
-			m[loc.y][loc.x].Walls &= notSouth
-		}
-		if nLoc.x == loc.x-1 && nLoc.y == loc.y {
-			m[nLoc.y][nLoc.x].Walls &= notEast
-			m[loc.y][loc.x].Walls &= notWest
-		}
-		if nLoc.x == loc.x && nLoc.y == loc.y-1 {
-			m[nLoc.y][nLoc.x].Walls &= notSouth
-			m[loc.y][loc.x].Walls &= notNorth
-		}
-
-		m[nLoc.y][nLoc.x].visited = true
-		s.Push(nLoc)
 	}
 }
 
-func getNeighbors(m *Maze, loc Location) []Location {
+// https://en.wikipedia.org/wiki/Maze_generation_algorithm
+func (m *Maze) Generate() {
+	if m.IsDone() {
+		return
+	}
+
+	loc := m.Unvisited.Pop()
+
+	n := m.getNeighbors(loc)
+	if len(n) == 0 {
+		return
+	}
+
+	m.Unvisited.Push(loc)
+	nLoc := n[rnd.Intn(len(n))]
+
+	// Remove walls
+	if nLoc.X == loc.X+1 && nLoc.Y == loc.Y {
+		m.Cells[nLoc.Y][nLoc.X].Walls &= notWest
+		m.Cells[loc.Y][loc.X].Walls &= notEast
+	}
+	if nLoc.X == loc.X && nLoc.Y == loc.Y+1 {
+		m.Cells[nLoc.Y][nLoc.X].Walls &= notNorth
+		m.Cells[loc.Y][loc.X].Walls &= notSouth
+	}
+	if nLoc.X == loc.X-1 && nLoc.Y == loc.Y {
+		m.Cells[nLoc.Y][nLoc.X].Walls &= notEast
+		m.Cells[loc.Y][loc.X].Walls &= notWest
+	}
+	if nLoc.X == loc.X && nLoc.Y == loc.Y-1 {
+		m.Cells[nLoc.Y][nLoc.X].Walls &= notSouth
+		m.Cells[loc.Y][loc.X].Walls &= notNorth
+	}
+
+	m.Cells[nLoc.Y][nLoc.X].visited = true
+	m.Unvisited.Push(nLoc)
+}
+
+func (m *Maze) getNeighbors(loc Location) []Location {
 	var n []Location
 
-	if loc.x > 0 && !m[loc.y][loc.x-1].visited {
-		n = append(n, Location{x: loc.x - 1, y: loc.y})
+	if loc.X > 0 && !m.Cells[loc.Y][loc.X-1].visited {
+		n = append(n, Location{X: loc.X - 1, Y: loc.Y})
 	}
-	if loc.y > 0 && !m[loc.y-1][loc.x].visited {
-		n = append(n, Location{x: loc.x, y: loc.y - 1})
+	if loc.Y > 0 && !m.Cells[loc.Y-1][loc.X].visited {
+		n = append(n, Location{X: loc.X, Y: loc.Y - 1})
 	}
-	if loc.x < size-1 && !m[loc.y][loc.x+1].visited {
-		n = append(n, Location{x: loc.x + 1, y: loc.y})
+	if loc.X < m.width-1 && !m.Cells[loc.Y][loc.X+1].visited {
+		n = append(n, Location{X: loc.X + 1, Y: loc.Y})
 	}
-	if loc.y < size-1 && !m[loc.y+1][loc.x].visited {
-		n = append(n, Location{x: loc.x, y: loc.y + 1})
+	if loc.Y < m.height-1 && !m.Cells[loc.Y+1][loc.X].visited {
+		n = append(n, Location{X: loc.X, Y: loc.Y + 1})
 	}
 
 	return n
+}
+
+func (m *Maze) StartSolving() {
+	m.SolutionStack = []Step{{Loc: Location{0, 0}, From: nil}}
+	m.SolutionVisited = make(map[Location]bool)
+	m.SolutionParent = make(map[Location]*Location)
+	m.SolutionDone = false
+	m.SolutionPath = nil
+}
+
+func (m *Maze) SolveStep() {
+	if m.SolutionDone || len(m.SolutionStack) == 0 {
+		return
+	}
+
+	current := m.SolutionStack[len(m.SolutionStack)-1]
+	m.SolutionStack = m.SolutionStack[:len(m.SolutionStack)-1]
+
+	if m.SolutionVisited[current.Loc] {
+		return
+	}
+	m.SolutionVisited[current.Loc] = true
+	m.SolutionParent[current.Loc] = current.From
+
+	end := Location{m.width - 1, m.height - 1}
+	if current.Loc == end {
+		// Reconstruct the path
+		path := []Location{}
+		for at := &end; at != nil; at = m.SolutionParent[*at] {
+			path = append([]Location{*at}, path...)
+		}
+		m.SolutionPath = path
+		m.SolutionDone = true
+		return
+	}
+
+	directions := []struct {
+		dx, dy int32
+		wall   uint8
+	}{
+		{0, -1, North},
+		{1, 0, East},
+		{0, 1, South},
+		{-1, 0, West},
+	}
+
+	for _, dir := range directions {
+		nx, ny := current.Loc.X+dir.dx, current.Loc.Y+dir.dy
+		if nx < 0 || ny < 0 || nx >= m.width || ny >= m.height {
+			continue
+		}
+		currCell := m.Cells[current.Loc.Y][current.Loc.X]
+		if currCell.Walls&dir.wall != 0 {
+			continue // Wall blocks path
+		}
+		neighbor := Location{nx, ny}
+		if !m.SolutionVisited[neighbor] {
+			m.SolutionStack = append(m.SolutionStack, Step{Loc: neighbor, From: &current.Loc})
+		}
+	}
 }
